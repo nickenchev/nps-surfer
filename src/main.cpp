@@ -2,11 +2,17 @@
 #include "dataloader.h"
 #include "title.h"
 #include <vector>
+#include <QApplication>
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
+	QApplication app(argc, argv);
 	DataLoader loader;
-	const std::vector<Title> allTitles = loader.load();
+	const auto titles = loader.load();
 
-	std::cout << "Read " << allTitles.size() << " titles" << std::endl;
+	MainWindow window(titles);
+	window.show();
+
+	return app.exec();
 }
