@@ -21,7 +21,7 @@ struct ColumnMap
 class DataLoader
 {
 public:
-	std::vector<Title> load() const;
+	void load(std::vector<Title> &allTitles) const;
 };
 
 #endif /* DATALOADER_H */

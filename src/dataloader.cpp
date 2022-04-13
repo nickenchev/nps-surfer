@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <vector>
 #include <array>
+#include <curl/curl.h>
 #include "dataloader.h"
 #include "title.h"
 
@@ -28,7 +29,28 @@ static inline void rtrim(std::string &s)
 	}).base(), s.end());
 }
 
-vector<Title> DataLoader::load() const
+size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+{
+	std::vector<char> *data = static_cast<std::vector<char> *>(userp);
+	size_t writeSize = size * nmemb;
+
+	for (size_t i = 0; i < writeSize; ++i)
+	{
+		char val = static_cast<char *>(buffer)[i];
+		data->push_back(val);
+	}
+
+	return size * nmemb;
+}
+
+int xfer_callback(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+	double pct = (dltotal > 0) ? dlnow / static_cast<double>(dltotal) * 100 : 0;
+	std::cout << static_cast<int>(pct) << "%, " << std::flush;
+	return 0;
+}
+
+void DataLoader::load(vector<Title> &allTitles) const
 {
 	array<TSVFile, 5> tsvFiles = {
 		TSVFile { Category::PS3Game, "/home/nenchev/Downloads/PS3_GAMES.tsv" },
@@ -38,7 +60,27 @@ vector<Title> DataLoader::load() const
 		TSVFile { Category::PSXGame, "/home/nenchev/Downloads/PSX_GAMES.tsv" }
 	};
 
-	vector<Title> allTitles;
+	CURL *curl = curl_easy_init();
+	curl_easy_setopt(curl, CURLOPT_URL, "https://nopaystation.com/tsv/PSV_GAMES.tsv");
+
+	std::vector<char> data(1024);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xfer_callback);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+
+	if (curl_easy_perform(curl) == CURLE_OK)
+	{
+		double cl = 0;
+		if (curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &cl) == CURLE_OK)
+		{
+			printf("Size: %.0f\n", cl);
+		}
+
+		const std::string s(data.data());
+		//std::cout << s << std::endl;
+	}
+
 	for (TSVFile &fileInfo : tsvFiles)
 	{
 		ifstream tsvFile(fileInfo.path);
@@ -157,5 +199,4 @@ vector<Title> DataLoader::load() const
 			throw std::runtime_error("Unable to open file");
 		}
 	}
-	return allTitles;
 }

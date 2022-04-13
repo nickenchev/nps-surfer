@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <vector>
+#include <memory>
 #include <QMainWindow>
+#include <QItemSelection>
 #include "title.h"
 #include "titletablemodel.h"
 
@@ -13,13 +15,15 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-	TitleTableModel titlesModel;
+    Ui::MainWindow *ui;
+
+	std::vector<Title> titles;
+	std::unique_ptr<TitleTableModel> titlesModel;
 
 public:
-    MainWindow(const std::vector<Title> &titles, QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
+	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 };
 #endif // MAINWINDOW_H

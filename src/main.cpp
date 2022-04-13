@@ -1,18 +1,19 @@
 #include <iostream>
-#include "dataloader.h"
-#include "title.h"
 #include <vector>
 #include <QApplication>
+#include <curl/curl.h>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	DataLoader loader;
-	const auto titles = loader.load();
 
-	MainWindow window(titles);
+	MainWindow window;
 	window.show();
 
-	return app.exec();
+	curl_global_init(CURL_GLOBAL_ALL);
+	int result = app.exec();
+	curl_global_cleanup();
+
+	return result;
 }
