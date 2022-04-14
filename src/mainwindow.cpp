@@ -40,17 +40,17 @@ void MainWindow::downloadError()
 void MainWindow::showEvent(QShowEvent *event)
 {
 	// download files
-	QFuture future = QtConcurrent::run([this]() {
+	dialog.getLabel()->setText(QString("Refreshing data files"));
+	dialog.getButton()->setText(QString("Please Wait"));
+	dialog.open();
+
+	QtConcurrent::run([this]() {
 		Downloader downloader;
 		connect(&downloader, &Downloader::progressChanged, &dialog, &ProgressDialog::downloadProgress);
 		connect(&downloader, &Downloader::downloadsComplete, this, &MainWindow::downloadsComplete);
 		connect(&downloader, &Downloader::downloadError, this, &MainWindow::downloadError);
 		downloader.start();
-	});
-	dialog.getButton()->setText(QString("Please Wait"));
-	dialog.open();
-
-	future.then([this]() {
+	}).then([this]() {
 		dialog.getButton()->setText(QString("Close"));
 	});
 }
