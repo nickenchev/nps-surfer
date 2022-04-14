@@ -11,12 +11,6 @@ ProgressDialog::ProgressDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Pr
 	ui->closeButton->setEnabled(false);
 }
 
-void ProgressDialog::downloadProgress(unsigned long downloaded, unsigned long total)
-{
-	int pct = downloaded / static_cast<double>(total) * 100;
-	ui->progressBar->setValue(pct);
-}
-
 QLabel *ProgressDialog::getLabel()
 {
 	return ui->infoLabel;
@@ -25,4 +19,9 @@ QLabel *ProgressDialog::getLabel()
 QPushButton *ProgressDialog::getButton()
 {
 	return ui->closeButton;
+}
+
+void ProgressDialog::setProgress(int value)
+{
+	ui->progressBar->setValue(value);
 }

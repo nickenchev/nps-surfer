@@ -1,4 +1,3 @@
-#include <curl/curl.h>
 #include <iostream>
 #include "downloader.h"
 
@@ -25,33 +24,53 @@ int xfer_callback(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_
 	return 0;
 }
 
-Downloader::Downloader()
+Downloader::Downloader(std::string url) : url(url), data(1024)
 {
-}
-
-void Downloader::start()
-{
-	CURL *curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, "https://nopaystation.com/tsv/PSV_GAMES.tsv");
-
-	std::vector<char> data(1024);
+	curl = curl_easy_init();
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xfer_callback);
 	curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+}
 
+Downloader::~Downloader()
+{
+	curl_easy_cleanup(curl);
+}
+
+unsigned long Downloader::fetchSize()
+{
+	curl_off_t size = 0;
+
+	curl_easy_setopt(curl, CURLOPT_NOBODY, true);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, true);
 	if (curl_easy_perform(curl) == CURLE_OK)
 	{
-		double cl = 0;
-		if (curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &cl) == CURLE_OK)
+		if (curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &size) != CURLE_OK)
 		{
-			emit downloadsComplete();
+			size = 0;
 		}
-		else
-		{
-			emit downloadError();
-		}
+	}
+	else
+	{
+		emit downloadError();
+	}
+	return size;
+}
+
+void Downloader::start()
+{
+	data.clear();
+	curl_easy_setopt(curl, CURLOPT_NOBODY, false);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, false);
+	if (curl_easy_perform(curl) == CURLE_OK)
+	{
+		emit downloadComplete();
 		const std::string s(data.data());
+	}
+	else
+	{
+		emit downloadError();
 	}
 }
