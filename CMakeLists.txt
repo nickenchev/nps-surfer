@@ -17,6 +17,8 @@ add_executable(nps-surfer
   src/mainwindow.ui
   src/mainwindow.h
   src/mainwindow.cpp
+  src/downloader.h
+  src/downloader.cpp
   src/progressdialog.ui
   src/progressdialog.h
   src/progressdialog.cpp

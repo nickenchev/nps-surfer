@@ -8,17 +8,12 @@
 #include "dataloader.h"
 #include "title.h"
 #include "titletablemodel.h"
-#include "progressdialog.h"
+#include "downloader.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), dialog(this)
 {
     ui->setupUi(this);
 
-	// download files
-	// QFuture future = QtConcurrent::run()
-	// future.then([]() {
-	// });
-	
 	DataLoader loader;
 	loader.load(titles);
 
@@ -28,9 +23,36 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	// handle title selection
 	QItemSelectionModel *selectionModel = ui->titlesTableView->selectionModel();
 	connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &MainWindow::selectionChanged);
+}
 
-	ProgressDialog dialog(this);
-	dialog.exec();
+void MainWindow::downloadsComplete()
+{
+	dialog.getLabel()->setText(QString("Refresh successful."));
+	dialog.getButton()->setEnabled(true);
+}
+
+void MainWindow::downloadError()
+{
+	dialog.getLabel()->setText(QString("Error downloading data files."));
+	dialog.getButton()->setEnabled(true);
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+	// download files
+	QFuture future = QtConcurrent::run([this]() {
+		Downloader downloader;
+		connect(&downloader, &Downloader::progressChanged, &dialog, &ProgressDialog::downloadProgress);
+		connect(&downloader, &Downloader::downloadsComplete, this, &MainWindow::downloadsComplete);
+		connect(&downloader, &Downloader::downloadError, this, &MainWindow::downloadError);
+		downloader.start();
+	});
+	dialog.getButton()->setText(QString("Please Wait"));
+	dialog.open();
+
+	future.then([this]() {
+		dialog.getButton()->setText(QString("Close"));
+	});
 }
 
 void MainWindow::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
