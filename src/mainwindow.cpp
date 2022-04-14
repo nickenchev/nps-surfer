@@ -44,12 +44,13 @@ void MainWindow::showEvent(QShowEvent *event)
 	dialog.getButton()->setText(QString("Please Wait"));
 	dialog.open();
 
+	downloader = std::make_unique<Downloader>();
+	connect(downloader.get(), &Downloader::progressChanged, &dialog, &ProgressDialog::downloadProgress);
+	connect(downloader.get(), &Downloader::downloadsComplete, this, &MainWindow::downloadsComplete);
+	connect(downloader.get(), &Downloader::downloadError, this, &MainWindow::downloadError);
+
 	QtConcurrent::run([this]() {
-		Downloader downloader;
-		connect(&downloader, &Downloader::progressChanged, &dialog, &ProgressDialog::downloadProgress);
-		connect(&downloader, &Downloader::downloadsComplete, this, &MainWindow::downloadsComplete);
-		connect(&downloader, &Downloader::downloadError, this, &MainWindow::downloadError);
-		downloader.start();
+		downloader->start();
 	}).then([this]() {
 		dialog.getButton()->setText(QString("Close"));
 	});

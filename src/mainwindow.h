@@ -8,6 +8,7 @@
 #include "title.h"
 #include "titletablemodel.h"
 #include "progressdialog.h"
+#include "downloader.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,6 +22,7 @@ class MainWindow : public QMainWindow
 	std::vector<Title> titles;
 	std::unique_ptr<TitleTableModel> titlesModel;
 	ProgressDialog dialog;
+	std::unique_ptr<Downloader> downloader;
 
 public:
     MainWindow(QWidget *parent = nullptr);
