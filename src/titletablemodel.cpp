@@ -81,6 +81,26 @@ QVariant TitleTableModel::data(const QModelIndex &index, int role) const
 						result = QString("PS Vita Game");
 						break;
 					}
+					case Category::PSVitaDLC:
+					{
+						result = QString("PS Vita DLC");
+						break;
+					}
+					case Category::PSVitaTheme:
+					{
+						result = QString("PS Vita Theme");
+						break;
+					}
+					case Category::PSVitaUpdate:
+					{
+						result = QString("PS Vita Update");
+						break;
+					}
+					case Category::PSVitaDemo:
+					{
+						result = QString("PS Vita Demo");
+						break;
+					}
 					case Category::PSXGame:
 					{
 						result = QString("PSX Game");

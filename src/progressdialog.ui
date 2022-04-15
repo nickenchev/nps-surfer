@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>330</width>
-    <height>220</height>
+    <width>418</width>
+    <height>283</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Progress</string>
+   <string>Refreshing Data</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="2,1,1">
    <item>

@@ -25,7 +25,6 @@ add_executable(nps-surfer
   src/titletablemodel.h
   src/titletablemodel.cpp
   src/progressitem.h
-  src/progressitem.cpp
   src/progresslistmodel.h
   src/progresslistmodel.cpp)
 

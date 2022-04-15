@@ -16,17 +16,6 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-struct WorkItem
-{
-	std::unique_ptr<Downloader> downloader;
-	ProgressItem progressItem;
-
-	WorkItem(const std::string &title, const std::string &url) : progressItem(title)
-	{
-		downloader = std::make_unique<Downloader>(url);
-	}
-};
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -37,7 +26,8 @@ class MainWindow : public QMainWindow
 	std::unique_ptr<TitleTableModel> titlesModel;
 	std::unique_ptr<ProgressDialog> dialog;
 	unsigned long totalSize, downloaded, totalDownloaded;
-	std::unique_ptr<WorkItem> psvGames, psvDlcs, psvThemes, psvUpdates, psvDemos;
+	std::vector<ProgressItem> progressItems;
+	std::vector<std::unique_ptr<Downloader>> downloaders;
 
 public:
     MainWindow(QWidget *parent = nullptr);

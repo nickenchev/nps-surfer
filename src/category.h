@@ -4,6 +4,10 @@
 enum class Category
 {
 	PSVitaGame,
+	PSVitaDLC,
+	PSVitaTheme,
+	PSVitaUpdate,
+	PSVitaDemo,
 	PS3Game,
 	PSMGame,
 	PSPGame,

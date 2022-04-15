@@ -14,46 +14,37 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-	std::vector<ProgressItem> progressItems;
+	ui->titlesTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	psvGames = std::make_unique<WorkItem>("PS Vita Games", "https://nopaystation.com/tsv/PSV_GAMES.tsv");
-	progressItems.push_back(psvGames->progressItem);
-	connect(psvGames->downloader.get(), &Downloader::progressChanged, this, &MainWindow::downloadProgress);
-	connect(psvGames->downloader.get(), &Downloader::downloadComplete, this, &MainWindow::downloadComplete);
-	connect(psvGames->downloader.get(), &Downloader::downloadError, this, &MainWindow::downloadError);
+	progressItems = std::vector<ProgressItem> {
+		ProgressItem("PS Vita Games"),
+		ProgressItem("PS Vita DLCs"),
+		ProgressItem("PS Vita Themes"),
+		ProgressItem("PS Vita Updates"),
+		ProgressItem("PS Vita Demos")
+	};
 
-	psvDlcs = std::make_unique<WorkItem>("PS Vita DLCs", "https://nopaystation.com/tsv/PSV_DLCS.tsv");
-	progressItems.push_back(psvDlcs->progressItem);
-	connect(psvDlcs->downloader.get(), &Downloader::progressChanged, this, &MainWindow::downloadProgress);
-	connect(psvDlcs->downloader.get(), &Downloader::downloadComplete, this, &MainWindow::downloadComplete);
-	connect(psvDlcs->downloader.get(), &Downloader::downloadError, this, &MainWindow::downloadError);
+	downloaders.push_back(std::make_unique<Downloader>("https://nopaystation.com/tsv/PSV_GAMES.tsv"));
+	downloaders.push_back(std::make_unique<Downloader>("https://nopaystation.com/tsv/PSV_DLCS.tsv"));
+	downloaders.push_back(std::make_unique<Downloader>("https://nopaystation.com/tsv/PSV_THEMES.tsv"));
+	downloaders.push_back(std::make_unique<Downloader>("https://nopaystation.com/tsv/PSV_UPDATES.tsv"));
+	downloaders.push_back(std::make_unique<Downloader>("https://nopaystation.com/tsv/PSV_DEMOS.tsv"));
 
-	psvThemes = std::make_unique<WorkItem>("PS Vita Themes", "https://nopaystation.com/tsv/PSV_THEMES.tsv");
-	progressItems.push_back(psvThemes->progressItem);
-	connect(psvThemes->downloader.get(), &Downloader::progressChanged, this, &MainWindow::downloadProgress);
-	connect(psvThemes->downloader.get(), &Downloader::downloadComplete, this, &MainWindow::downloadComplete);
-	connect(psvThemes->downloader.get(), &Downloader::downloadError, this, &MainWindow::downloadError);
-
-	psvUpdates = std::make_unique<WorkItem>("PS Vita Updates", "https://nopaystation.com/tsv/PSV_UPDATES.tsv");
-	progressItems.push_back(psvUpdates->progressItem);
-	connect(psvUpdates->downloader.get(), &Downloader::progressChanged, this, &MainWindow::downloadProgress);
-	connect(psvUpdates->downloader.get(), &Downloader::downloadComplete, this, &MainWindow::downloadComplete);
-	connect(psvUpdates->downloader.get(), &Downloader::downloadError, this, &MainWindow::downloadError);
-
-	psvDemos = std::make_unique<WorkItem>("PS Vita Demos", "https://nopaystation.com/tsv/PSV_DEMOS.tsv");
-	progressItems.push_back(psvDemos->progressItem);
-	connect(psvDemos->downloader.get(), &Downloader::progressChanged, this, &MainWindow::downloadProgress);
-	connect(psvDemos->downloader.get(), &Downloader::downloadComplete, this, &MainWindow::downloadComplete);
-	connect(psvDemos->downloader.get(), &Downloader::downloadError, this, &MainWindow::downloadError);
+	for (int i = 0; i < downloaders.size(); ++i)
+	{
+		connect(downloaders[i].get(), &Downloader::progressChanged, this, &MainWindow::downloadProgress);
+		connect(downloaders[i].get(), &Downloader::downloadComplete, this, &MainWindow::downloadComplete);
+		connect(downloaders[i].get(), &Downloader::downloadError, this, &MainWindow::downloadError);
+	}
 
 	// create and configure progress dialog
 	dialog = std::make_unique<ProgressDialog>(this);
-	dialog->createItemsModel(progressItems);
 	connect(dialog->getButton(), &QPushButton::clicked, [this]() {
 		dialog->close();
 	});
 
 	// download files
+	QAbstractItemModel *model = dialog->createItemsModel(progressItems);
 	dialog->getButton()->setText(QString("Please Wait"));
 	dialog->open();
 
@@ -62,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		dialog->getButton()->setText(QString("Close"));
 		dialog->getButton()->setEnabled(true);
 
-		titlesModel = std::make_unique<TitleTableModel>(titles);
+		//titlesModel = std::make_unique<TitleTableModel>(titles);
 		ui->titlesTableView->setModel(titlesModel.get());
 
 		// handle title selection
@@ -72,20 +63,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// start watching the download future
 	futureWatcher.setFuture(
-		QtConcurrent::run([this]() -> int {
+		QtConcurrent::run([this, model]() -> int {
 			totalSize = 0;
 			totalDownloaded = 0;
-			totalSize += psvGames->downloader->fetchSize();
-			totalSize += psvDlcs->downloader->fetchSize();
-			totalSize += psvThemes->downloader->fetchSize();
-			totalSize += psvUpdates->downloader->fetchSize();
-			totalSize += psvDemos->downloader->fetchSize();
 
-			psvGames->downloader->start();
-			psvDlcs->downloader->start();
-			psvThemes->downloader->start();
-			psvUpdates->downloader->start();
-			psvDemos->downloader->start();
+			// get total download size for all files
+			for (const auto &downloader : downloaders)
+			{
+				totalSize += downloader->fetchSize();
+			}
+
+			// perform all downloads
+			int row = 0;
+			for (const auto &downloader : downloaders)
+			{
+				downloader->start();
+				progressItems[row].state = ProgressState::Success;
+				QModelIndex index = model->index(row++, 1);
+				emit model->dataChanged(index, index);
+			}
 
 			DataLoader loader;
 			loader.load(titles);

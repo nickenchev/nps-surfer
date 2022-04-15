@@ -7,9 +7,9 @@
 
 class ProgressListModel : public QAbstractTableModel
 {
-	std::vector<ProgressItem> items;
+	std::vector<ProgressItem> &items;
 public:
-    ProgressListModel(const std::vector<ProgressItem> &items);
+    ProgressListModel(std::vector<ProgressItem> &items);
 
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;

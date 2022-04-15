@@ -11,6 +11,8 @@ ProgressDialog::ProgressDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Pr
 	ui->progressBar->setMinimum(0);
 	ui->progressBar->setValue(0);
 	ui->closeButton->setEnabled(false);
+
+	ui->itemsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 QPushButton *ProgressDialog::getButton()
@@ -23,7 +25,10 @@ void ProgressDialog::setProgress(int value)
 	ui->progressBar->setValue(value);
 }
 
-void ProgressDialog::createItemsModel(const std::vector<ProgressItem> &items)
+QAbstractItemModel *ProgressDialog::createItemsModel(std::vector<ProgressItem> &items)
 {
-	ui->itemsTable->setModel(new ProgressListModel(items));
+	QAbstractItemModel *model = new ProgressListModel(items);
+	ui->itemsTable->setModel(model);
+
+	return model;
 }

@@ -4,9 +4,8 @@ static auto columns = std::array<std::string, 2> {
 	"Item", "Status"
 };
 
-ProgressListModel::ProgressListModel(const std::vector<ProgressItem> &items)
+ProgressListModel::ProgressListModel(std::vector<ProgressItem> &items) : items(items)
 {
-	this->items = items;
 }
 
 QVariant ProgressListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -44,7 +43,28 @@ QVariant ProgressListModel::data(const QModelIndex &index, int role) const
 			}
 			case 1:
 			{
-				result = QString("Waiting");
+				switch (item.state)
+				{
+					case ProgressState::Working:
+					{
+						result = QString("Working");
+						break;
+					}
+					case ProgressState::Success:
+					{
+						result = QString("Success");
+						break;
+					}
+					case ProgressState::Error:
+					{
+						result = QString("Error");
+						break;
+					}
+					default:
+					{
+						result = QString("Waiting");
+					}
+				}
 				break;
 			}
 		}

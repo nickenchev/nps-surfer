@@ -16,7 +16,11 @@ struct ProgressItem
 	std::string title;
 	ProgressState state;
 
-    ProgressItem(const std::string &title);
+	ProgressItem(const std::string &title)
+	{
+		this->title = title;
+		state = ProgressState::Waiting;
+	}
 };
 
 #endif /* PROGRESSITEM_H */
