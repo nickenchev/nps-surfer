@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <string>
+#include "progressitem.h"
 
 namespace Ui { class ProgressDialog; }
 
@@ -17,6 +18,7 @@ public:
 	ProgressDialog(QWidget *parent);
 	void setProgress(int value);
 	QPushButton *getButton();
+	void createItemsModel(const std::vector<ProgressItem> &items);
 };
 
 

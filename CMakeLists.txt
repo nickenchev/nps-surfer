@@ -25,7 +25,9 @@ add_executable(nps-surfer
   src/titletablemodel.h
   src/titletablemodel.cpp
   src/progressitem.h
-  src/progressitem.cpp)
+  src/progressitem.cpp
+  src/progresslistmodel.h
+  src/progresslistmodel.cpp)
 
 target_include_directories(nps-surfer PRIVATE ${CURL_INCLUDE_DIRS})
 target_link_libraries(nps-surfer PRIVATE Qt6::Widgets ${CURL_LIBRARIES})

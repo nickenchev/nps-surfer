@@ -13,9 +13,9 @@
   <property name="windowTitle">
    <string>Progress</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,1,1">
    <item>
-    <widget class="QTableWidget" name="tableWidget"/>
+    <widget class="QTableView" name="itemsTable"/>
    </item>
    <item>
     <widget class="QProgressBar" name="progressBar">
@@ -23,19 +23,6 @@
       <number>24</number>
      </property>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item>
     <widget class="QPushButton" name="closeButton">
