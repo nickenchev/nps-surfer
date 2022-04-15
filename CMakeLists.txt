@@ -23,7 +23,9 @@ add_executable(nps-surfer
   src/progressdialog.h
   src/progressdialog.cpp
   src/titletablemodel.h
-  src/titletablemodel.cpp)
+  src/titletablemodel.cpp
+  src/progressitem.h
+  src/progressitem.cpp)
 
 target_include_directories(nps-surfer PRIVATE ${CURL_INCLUDE_DIRS})
 target_link_libraries(nps-surfer PRIVATE Qt6::Widgets ${CURL_LIBRARIES})

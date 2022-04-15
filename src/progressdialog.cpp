@@ -11,11 +11,6 @@ ProgressDialog::ProgressDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Pr
 	ui->closeButton->setEnabled(false);
 }
 
-QLabel *ProgressDialog::getLabel()
-{
-	return ui->infoLabel;
-}
-
 QPushButton *ProgressDialog::getButton()
 {
 	return ui->closeButton;

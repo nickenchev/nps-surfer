@@ -6,20 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>325</width>
-    <height>134</height>
+    <width>330</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Progress</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="infoLabel">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
+    <widget class="QTableWidget" name="tableWidget"/>
    </item>
    <item>
     <widget class="QProgressBar" name="progressBar">

@@ -16,7 +16,6 @@ class ProgressDialog : public QDialog
 public:
 	ProgressDialog(QWidget *parent);
 	void setProgress(int value);
-	QLabel *getLabel();
 	QPushButton *getButton();
 };
 
